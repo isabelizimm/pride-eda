@@ -1,0 +1,10 @@
+---
+title: "LGBTQIA+ Legislation"
+subtitle: "Source: ACLU"
+author: YOUR NAME HERE
+---
+
+```{python}
+import pandas as pd
+raw_data = pd.read_csv()
+```
