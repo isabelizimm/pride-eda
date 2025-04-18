@@ -5,6 +5,101 @@ author: YOUR NAME HERE
 ---
 
 ```{python}
+%pip install jupyter
+%pip install pandas
+%pip install seaborn
+```
+
+```{python}
 import pandas as pd
-raw_data = pd.read_csv()
+import seaborn as sns
+
+# Load the raw data
+url = "https://raw.githubusercontent.com/isabelizimm/pride-eda/refs/heads/main/aclu-legislative.csv"
+raw_data = pd.read_csv(url)
+```
+
+```{python}
+# Display basic information about the dataset
+print("\nFirst few rows:")
+raw_data.head()
+```
+
+```{python}
+# Check out the data in the Data Explorer!
+%view raw_data
+```
+
+## Exploratory Analysis
+
+```{python}
+# Count bills by status
+status_counts = df['Status'].value_counts().reset_index()
+status_counts.columns = ['Status', 'Count']
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Status', y='Count', data=status_counts)
+plt.title('Number of Bills by Status')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+# Count bills by state
+state_counts = df['State'].value_counts().reset_index()
+state_counts.columns = ['State', 'Count']
+
+# Show top 15 states with most bills
+plt.figure(figsize=(12, 8))
+sns.barplot(x='Count', y='State', data=state_counts.head(15))
+plt.title('Top 15 States by Number of Bills')
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+# Analyze bills by issue type
+issue_columns = [col for col in df.columns if col.startswith('Issue_')]
+issue_counts = df[issue_columns].sum().reset_index()
+issue_counts.columns = ['Issue', 'Count']
+issue_counts['Issue'] = issue_counts['Issue'].str.replace('Issue_', '').str.replace('_', ' ')
+issue_counts = issue_counts.sort_values('Count', ascending=False)
+
+plt.figure(figsize=(14, 8))
+sns.barplot(x='Count', y='Issue', data=issue_counts)
+plt.title('Number of Bills by Issue Type')
+plt.tight_layout()
+plt.show()
+```
+
+## Time Analysis
+
+```{python}
+# Analyze bills over time
+bills_by_date = df.groupby('Status Date').size().reset_index(name='Count')
+bills_by_date = bills_by_date.sort_values('Status Date')
+
+plt.figure(figsize=(14, 6))
+plt.plot(bills_by_date['Status Date'], bills_by_date['Count'])
+plt.title('Number of Bills by Status Date')
+plt.xlabel('Date')
+plt.ylabel('Number of Bills')
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+# Bills by status and year
+status_year = df.groupby(['Year', 'Status']).size().reset_index(name='Count')
+status_year_pivot = status_year.pivot(index='Year', columns='Status', values='Count').fillna(0)
+
+plt.figure(figsize=(12, 8))
+status_year_pivot.plot(kind='bar', stacked=True)
+plt.title('Bills by Status and Year')
+plt.xlabel('Year')
+plt.ylabel('Number of Bills')
+plt.legend(title='Status')
+plt.tight_layout()
+plt.show()
 ```
